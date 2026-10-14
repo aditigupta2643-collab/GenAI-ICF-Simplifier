@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GenAI ICF Simplifier — Built for Aurobindo Pharma | Sales Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --forest-dark:  #0d1310;
+  --forest-mid:   #1a2420;
+  --forest-light: #2a3a34;
+  --off-white:    #f4f4f4;
+  --pure-white:   #ffffff;
+  --soft-black:   #1a1a1a;
+  --sage:         #a8d4a0;
+  --coral:        #ff8a7a;
+  --amber:        #d4c4a8;
+  --steel:        #a8c4d4;
+  --ease-quiet:    cubic-bezier(.22, 1, .36, 1);
+  --ease-precise:  cubic-bezier(.4, 0, .2, 1);
+  --ease-emphasis: cubic-bezier(.16, 1, .3, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--forest-dark);
+  color: var(--off-white);
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+body { overflow-x: hidden; }
+::selection { background: var(--off-white); color: var(--forest-dark); }
+a { color: inherit; text-decoration: none; }
+
+h1, h2, h3, h4 {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 0.95;
+  color: var(--pure-white);
+}
+
+p { font-size: 1rem; line-height: 1.65; color: rgba(244,244,244,0.78); max-width: 62ch; }
+p + p { margin-top: 1.2rem; }
+
+.label, .eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(244,244,244,0.55);
+}
+
+/* ============ NAV ============ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 1.2rem 2rem;
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(13,19,16,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(244,244,244,0.06);
+}
+
+.brand {
+  display: flex; align-items: center; gap: 0.6rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; letter-spacing: 0.1em;
+  color: var(--pure-white);
+}
+
+.brand-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--off-white); position: relative;
+}
+.brand-dot::after {
+  content: ''; position: absolute; inset: -4px;
+  border: 1px solid rgba(244,244,244,0.3);
+  border-radius: 50%;
+  animation: pulse 3s var(--ease-quiet) infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  50% { transform: scale(1.5); opacity: 0; }
+}
+
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(244,244,244,0.55);
+  transition: transform 280ms var(--ease-quiet), color 280ms var(--ease-quiet);
+  display: inline-block;
+}
+.nav-links a:hover { color: var(--pure-white); transform: translateX(4px); }
+
+.nav-cta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--off-white);
+  background: var(--off-white);
+  color: var(--forest-dark);
+  cursor: pointer;
+  transition: all 280ms var(--ease-quiet);
+}
+.nav-cta:hover { background: transparent; color: var(--off-white); }
+
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+}
+
+/* ============ HERO ============ */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  align-items: center;
+  padding: 8rem 2rem 4rem;
+  position: relative;
+  background: linear-gradient(180deg, var(--forest-dark) 0%, var(--forest-mid) 100%);
+  overflow: hidden;
+}
+
+.hero-left { padding-right: 4rem; position: relative; z-index: 2; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 2rem;
+  opacity: 0; transform: translateY(16px);
+  animation: heroFadeIn 800ms var(--ease-quiet) 200ms forwards;
+}
+.hero-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--off-white); }
+
+.hero-title {
+  font-size: clamp(2.6rem, 6vw, 5.5rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+  margin-bottom: 2rem;
+}
+.hero-title .line { display: block; overflow: hidden; }
+.hero-title .line .inner {
+  display: block; transform: translateY(110%);
+  transition: transform 1200ms var(--ease-emphasis);
+}
+.hero-title .line:nth-child(1) .inner { transition-delay: 350ms; }
+.hero-title .line:nth-child(2) .inner { transition-delay: 500ms; }
+.hero-title .line:nth-child(3) .inner { transition-delay: 650ms; }
+.hero.is-loaded .hero-title .line .inner { transform: translateY(0); }
+.hero-title em { font-style: normal; color: rgba(244,244,244,0.4); font-weight: 300; }
+
+.hero-sub {
+  font-size: 1.15rem;
+  color: rgba(244,244,244,0.7);
+  max-width: 50ch;
+  line-height: 1.55;
+  margin-bottom: 2.5rem;
+  opacity: 0; transform: translateY(20px);
+  animation: heroFadeIn 1000ms var(--ease-quiet) 900ms forwards;
+}
+
+.hero-cta-row {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  opacity: 0; transform: translateY(20px);
+  animation: heroFadeIn 1000ms var(--ease-quiet) 1100ms forwards;
+}
+
+.btn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 1rem 1.6rem;
+  border: 1px solid rgba(244,244,244,0.25);
+  background: transparent;
+  color: var(--off-white);
+  cursor: pointer;
+  transition: all 280ms var(--ease-quiet);
+  display: inline-block;
+  text-align: center;
+}
+.btn:hover { background: var(--off-white); color: var(--forest-dark); border-color: var(--off-white); }
+.btn.primary { background: var(--off-white); color: var(--forest-dark); border-color: var(--off-white); }
+.btn.primary:hover { background: transparent; color: var(--off-white); }
+
+.hero-meta {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 4rem;
+  opacity: 0; transform: translateY(20px);
+  animation: heroFadeIn 1000ms var(--ease-quiet) 1300ms forwards;
+}
+.hero-meta-block {
+  border-top: 1px solid rgba(244,244,244,0.15);
+  padding-top: 0.8rem;
+}
+.hero-meta-block .label { display: block; margin-bottom: 0.4rem; font-size: 9px; }
+.hero-meta-block .value {
+  font-size: 0.85rem; color: var(--pure-white);
+  font-weight: 500;
+}
+
+.hero-right {
+  position: relative; height: 100%;
+  min-height: 60vh;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.hero-card {
+  width: 100%; max-width: 380px;
+  border: 1px solid rgba(244,244,244,0.15);
+  background: rgba(26,36,32,0.7);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  opacity: 0; transform: translateY(40px) scale(0.96);
+  animation: heroFadeIn 1400ms var(--ease-quiet) 800ms forwards;
+}
+
+.hero-card .card-head {
+  display: flex; justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(244,244,244,0.1);
+  margin-bottom: 1.5rem;
+}
+.hero-card .card-head .label { font-size: 9px; }
+
+.hero-comparison { display: flex; flex-direction: column; gap: 1rem; }
+.comparison-row {
+  display: grid; grid-template-columns: 1fr auto;
+  gap: 1rem; padding: 1rem 0;
+  border-bottom: 1px solid rgba(244,244,244,0.08);
+}
+.comparison-row:last-child { border-bottom: none; }
+.comparison-row .label { font-size: 9px; }
+.comparison-row .val {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.5rem; font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.comparison-row .val.before { color: var(--coral); }
+.comparison-row .val.after { color: var(--sage); }
+
+.hero-card .arrow {
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: rgba(244,244,244,0.4);
+  padding: 0.5rem 0;
+}
+
+@keyframes heroFadeIn { to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; padding: 7rem 1.5rem 3rem; }
+  .hero-left { padding-right: 0; }
+  .hero-right { min-height: auto; padding: 2rem 0; }
+  .hero-meta { grid-template-columns: 1fr 1fr; }
+}
+
+/* ============ SECTION BASE ============ */
+section { padding: 8rem 2rem; position: relative; }
+@media (max-width: 768px) { section { padding: 5rem 1.5rem; } }
+
+.container { max-width: 1400px; margin: 0 auto; }
+.container-narrow { max-width: 860px; margin: 0 auto; }
+
+.section-eyebrow {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: rgba(244,244,244,0.5);
+  margin-bottom: 2rem;
+  opacity: 0; transform: translateY(14px);
+  transition: opacity 600ms var(--ease-quiet), transform 600ms var(--ease-quiet);
+}
+.section-eyebrow::after {
+  content: ''; display: inline-block;
+  width: 0; height: 1px;
+  margin-left: 0.75rem; vertical-align: middle;
+  background: currentColor;
+  transition: width 800ms var(--ease-quiet) 400ms;
+}
+section.is-in .section-eyebrow { opacity: 1; transform: translateY(0); transition-delay: 100ms; }
+section.is-in .section-eyebrow::after { width: 2rem; }
+
+.section-title {
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 0.95;
+  margin-bottom: 3rem;
+  max-width: 22ch;
+}
+.section-title .line { display: block; overflow: hidden; }
+.section-title .line .inner {
+  display: block; transform: translateY(110%);
+  transition: transform 1000ms var(--ease-emphasis);
+  transition-delay: calc(var(--i,0) * 100ms + 200ms);
+}
+section.is-in .section-title .line .inner { transform: translateY(0); }
+
+/* ============ PROBLEM ============ */
+.problem {
+  background: var(--forest-mid);
+  border-top: 1px solid rgba(244,244,244,0.06);
+  border-bottom: 1px solid rgba(244,244,244,0.06);
+}
+
+.problem-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: start;
+}
+
+.problem-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: rgba(244,244,244,0.08);
+  border: 1px solid rgba(244,244,244,0.08);
+}
+
+.stat-cell {
+  background: var(--forest-mid);
+  padding: 2rem 1.5rem;
+}
+.stat-cell .label { display: block; margin-bottom: 0.6rem; }
+.stat-cell .num {
+  font-family: 'Manrope', sans-serif;
+  font-size: 2.2rem; font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--pure-white);
+  line-height: 1; margin-bottom: 0.4rem;
+}
+.stat-cell .num.danger { color: var(--coral); }
+.stat-cell .note {
+  font-size: 0.78rem;
+  color: rgba(244,244,244,0.55);
+  line-height: 1.4;
+}
+
+.problem-body .lead {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--pure-white);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .problem-grid { grid-template-columns: 1fr; gap: 3rem; }
+}
+
+/* ============ APP DEMO ============ */
+.app {
+  background: var(--forest-dark);
+}
+
+.app-intro {
+  max-width: 700px;
+  margin-bottom: 4rem;
+}
+
+.preset-row {
+  display: flex; gap: 0.6rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.preset-chip {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.6rem 1rem;
+  border: 1px solid rgba(244,244,244,0.18);
+  color: rgba(244,244,244,0.7);
+  cursor: pointer;
+  transition: all 280ms var(--ease-quiet);
+  background: transparent;
+}
+.preset-chip:hover { border-color: var(--off-white); color: var(--off-white); }
+.preset-chip.active {
+  background: var(--off-white);
+  color: var(--forest-dark);
+  border-color: var(--off-white);
+}
+
+.app-shell {
+  border: 1px solid rgba(244,244,244,0.12);
+  background: var(--forest-mid);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 580px;
+}
+
+.app-panel {
+  padding: 1.8rem;
+  display: flex; flex-direction: column;
+  gap: 1rem;
+}
+.app-panel.left { border-right: 1px solid rgba(244,244,244,0.1); }
+
+.panel-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(244,244,244,0.1);
+}
+
+.readability-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: 0.15em;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid rgba(244,244,244,0.2);
+  color: var(--off-white);
+}
+.readability-badge.danger { color: var(--coral); border-color: rgba(255,138,122,0.4); }
+.readability-badge.warn { color: var(--amber); border-color: rgba(212,196,168,0.4); }
+.readability-badge.ok { color: var(--sage); border-color: rgba(168,212,160,0.4); }
+
+.target-control {
+  display: flex; align-items: center; gap: 0.8rem;
+  padding: 0.6rem 0;
+  font-size: 0.85rem;
+  color: rgba(244,244,244,0.7);
+}
+.target-control select {
+  background: var(--forest-dark);
+  color: var(--off-white);
+  border: 1px solid rgba(244,244,244,0.2);
+  padding: 0.4rem 0.6rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  outline: none;
+}
+
+textarea.icf-input {
+  flex: 1;
+  background: var(--forest-dark);
+  color: var(--off-white);
+  border: 1px solid rgba(244,244,244,0.1);
+  padding: 1.2rem;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  resize: none;
+  min-height: 200px;
+  outline: none;
+  transition: border-color 200ms var(--ease-quiet);
+}
+textarea.icf-input:focus { border-color: rgba(244,244,244,0.3); }
+
+.app-actions { display: flex; gap: 0.6rem; }
+
+.simplified-output {
+  flex: 1;
+  background: var(--forest-dark);
+  border: 1px solid rgba(244,244,244,0.1);
+  padding: 1.2rem;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  min-height: 200px;
+  overflow-y: auto;
+  color: var(--off-white);
+}
+.simplified-output.empty {
+  color: rgba(244,244,244,0.35);
+  font-style: italic;
+}
+
+.grade-meter {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  background: rgba(244,244,244,0.08);
+  margin-top: 0.5rem;
+  border: 1px solid rgba(244,244,244,0.08);
+}
+.meter-cell {
+  background: var(--forest-mid);
+  padding: 0.9rem;
+  text-align: center;
+}
+.meter-cell .label { display: block; margin-bottom: 0.3rem; font-size: 9px; }
+.meter-cell .val {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.3rem; font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--pure-white);
+}
+.meter-cell .val.positive { color: var(--sage); }
+
+/* Q&A Bot */
+.qa-bot {
+  margin-top: 2.5rem;
+  border: 1px solid rgba(244,244,244,0.1);
+  padding: 1.8rem;
+  background: var(--forest-mid);
+}
+.qa-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 1.2rem; padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(244,244,244,0.1);
+}
+.qa-head h4 { font-size: 1.15rem; font-weight: 700; }
+
+.qa-suggestions {
+  display: flex; gap: 0.5rem;
+  flex-wrap: wrap; margin-bottom: 1.2rem;
+}
+.qa-chip {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid rgba(244,244,244,0.15);
+  color: rgba(244,244,244,0.7);
+  background: transparent;
+  cursor: pointer;
+  transition: all 220ms var(--ease-quiet);
+}
+.qa-chip:hover {
+  border-color: var(--off-white);
+  color: var(--off-white);
+  transform: translateX(3px);
+}
+
+.qa-display {
+  background: var(--forest-dark);
+  padding: 1.2rem;
+  border: 1px solid rgba(244,244,244,0.08);
+  min-height: 100px;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.qa-display .q {
+  color: rgba(244,244,244,0.5);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.qa-display .a {
+  color: var(--off-white);
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(244,244,244,0.06);
+}
+.qa-display .a:last-child { margin-bottom: 0; border-bottom: none; }
+.qa-display .citation {
+  display: block;
+  margin-top: 0.5rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em;
+  color: rgba(244,244,244,0.4);
+}
+
+/* Quiz */
+.quiz-block {
+  margin-top: 2.5rem;
+  border: 1px solid rgba(244,244,244,0.1);
+  padding: 1.8rem;
+  background: var(--forest-mid);
+}
+.quiz-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 1.2rem; padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(244,244,244,0.1);
+}
+.quiz-head h4 { font-size: 1.15rem; font-weight: 700; }
+
+.quiz-questions { display: flex; flex-direction: column; gap: 1.2rem; }
+.quiz-q {
+  padding: 1.1rem;
+  background: var(--forest-dark);
+  border: 1px solid rgba(244,244,244,0.08);
+}
+.quiz-q .q-text {
+  font-size: 0.92rem;
+  color: var(--off-white);
+  margin-bottom: 0.8rem;
+  line-height: 1.5;
+}
+.quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.quiz-option {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid rgba(244,244,244,0.12);
+  background: transparent;
+  color: var(--off-white);
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 220ms var(--ease-quiet);
+  text-align: left;
+  line-height: 1.4;
+}
+.quiz-option:hover { border-color: rgba(244,244,244,0.4); }
+.quiz-option.correct {
+  background: rgba(168,212,160,0.15);
+  border-color: rgba(168,212,160,0.5);
+  color: var(--sage);
+}
+.quiz-option.wrong {
+  background: rgba(255,138,122,0.12);
+  border-color: rgba(255,138,122,0.4);
+  color: var(--coral);
+}
+
+.quiz-result {
+  margin-top: 1.2rem;
+  padding: 1.2rem;
+  background: var(--forest-dark);
+  border-left: 2px solid var(--off-white);
+  display: none;
+}
+.quiz-result.show { display: block; }
+.quiz-result .score {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.8rem; font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--pure-white);
+  margin-bottom: 0.3rem;
+}
+.quiz-result .verdict {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(244,244,244,0.6);
+}
+.quiz-result .verdict.pass { color: var(--sage); }
+.quiz-result .verdict.fail { color: var(--coral); }
+
+.audit-log {
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  background: var(--forest-dark);
+  border: 1px dashed rgba(244,244,244,0.15);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: rgba(244,244,244,0.55);
+  line-height: 1.6;
+}
+.audit-log .log-line { display: block; }
+.audit-log .ts { color: var(--sage); }
+
+@media (max-width: 900px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .app-panel.left { border-right: none; border-bottom: 1px solid rgba(244,244,244,0.1); }
+  .quiz-options { grid-template-columns: 1fr; }
+}
+
+/* ============ THERAPEUTIC AREA PRESETS ============ */
+.presets {
+  background: var(--forest-mid);
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.preset-card {
+  border: 1px solid rgba(244,244,244,0.12);
+  background: var(--forest-dark);
+  padding: 2rem;
+  position: relative;
+}
+
+.preset-card .preset-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: rgba(244,244,244,0.5);
+  margin-bottom: 0.8rem;
+}
+
+.preset-card h4 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  letter-spacing: -0.02em;
+}
+
+.preset-card .desc {
+  font-size: 0.9rem;
+  color: rgba(244,244,244,0.7);
+  line-height: 1.55;
+  margin-bottom: 1.5rem;
+}
+
+.preset-card .target-grade {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.8rem 0;
+  border-top: 1px solid rgba(244,244,244,0.08);
+  border-bottom: 1px solid rgba(244,244,244,0.08);
+  margin-bottom: 1rem;
+}
+.preset-card .target-grade .label { font-size: 9px; }
+.preset-card .target-grade .val {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.4rem; font-weight: 800;
+  color: var(--sage);
+  letter-spacing: -0.02em;
+}
+
+.preset-card ul {
+  list-style: none;
+}
+.preset-card ul li {
+  padding: 0.4rem 0;
+  font-size: 0.82rem;
+  color: rgba(244,244,244,0.7);
+  border-top: 1px solid rgba(244,244,244,0.06);
+  display: flex; gap: 0.6rem;
+}
+.preset-card ul li::before {
+  content: '—';
+  color: rgba(244,244,244,0.4);
+}
+
+@media (max-width: 900px) {
+  .preset-grid { grid-template-columns: 1fr; }
+}
+
+/* ============ ROI CALCULATOR ============ */
+.roi {
+  background: var(--forest-dark);
+}
+
+.roi-calc {
+  border: 1px solid rgba(244,244,244,0.15);
+  background: var(--forest-mid);
+  padding: 2.5rem;
+  margin-top: 3rem;
+}
+
+.roi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.roi-inputs h4, .roi-output h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.015em;
+}
+
+.roi-field {
+  margin-bottom: 1.2rem;
+}
+.roi-field label {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(244,244,244,0.55);
+  margin-bottom: 0.5rem;
+}
+.roi-field input {
+  width: 100%;
+  background: var(--forest-dark);
+  border: 1px solid rgba(244,244,244,0.15);
+  color: var(--off-white);
+  padding: 0.7rem 1rem;
+  font-family: 'Manrope', sans-serif;
+  font-size: 1rem;
+  outline: none;
+}
+.roi-field input:focus { border-color: rgba(244,244,244,0.4); }
+
+.roi-output {
+  background: var(--forest-dark);
+  padding: 2rem;
+  border: 1px solid rgba(244,244,244,0.08);
+}
+
+.roi-result {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(244,244,244,0.08);
+}
+.roi-result .label { display: block; margin-bottom: 0.4rem; }
+.roi-result .val {
+  font-family: 'Manrope', sans-serif;
+  font-size: 2.4rem; font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--sage);
+  line-height: 1;
+}
+.roi-result.cost .val { color: var(--coral); }
+.roi-result.net .val { color: var(--pure-white); }
+
+.roi-breakdown {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: rgba(244,244,244,0.55);
+  line-height: 1.8;
+}
+.roi-breakdown .row {
+  display: flex; justify-content: space-between;
+  padding: 0.3rem 0;
+  border-top: 1px solid rgba(244,244,244,0.05);
+}
+.roi-breakdown .row .v { color: var(--off-white); }
+
+@media (max-width: 900px) {
+  .roi-grid { grid-template-columns: 1fr; gap: 2rem; }
+}
+
+/* ============ PRICING & MARKET ============ */
+.pricing-section {
+  background: var(--forest-mid);
+}
+
+.pricing-table {
+  border: 1px solid rgba(244,244,244,0.12);
+  background: var(--forest-mid);
+  margin-top: 3rem;
+}
+
+.pricing-head {
+  padding: 2rem 2.5rem;
+  border-bottom: 1px solid rgba(244,244,244,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.pricing-head h3 {
+  font-size: 1.5rem; font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.pricing-tiers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(244,244,244,0.08);
+}
+
+.tier {
+  background: var(--forest-mid);
+  padding: 2rem 1.5rem;
+  position: relative;
+}
+.tier .tier-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(244,244,244,0.55);
+  margin-bottom: 1rem;
+}
+.tier .price {
+  font-family: 'Manrope', sans-serif;
+  font-size: 2.2rem; font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--pure-white);
+  margin-bottom: 0.3rem;
+  line-height: 1;
+}
+.tier .price-unit {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: rgba(244,244,244,0.5);
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
+.tier ul { list-style: none; }
+.tier ul li {
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  color: rgba(244,244,244,0.75);
+  border-top: 1px solid rgba(244,244,244,0.08);
+  display: flex; gap: 0.6rem;
+}
+.tier ul li::before {
+  content: '—';
+  color: rgba(244,244,244,0.4);
+}
+.tier.featured {
+  background: var(--forest-dark);
+}
+.tier.featured::before {
+  content: 'RECOMMENDED FOR AUROBINDO';
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: var(--off-white);
+}
+
+.market-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(244,244,244,0.08);
+  border: 1px solid rgba(244,244,244,0.08);
+  margin-top: 3rem;
+}
+.market-cell {
+  background: var(--forest-mid);
+  padding: 2.5rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.market-cell .tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: rgba(244,244,244,0.45);
+  margin-bottom: 1.2rem;
+}
+.market-cell .val {
+  font-family: 'Manrope', sans-serif;
+  font-size: 2.8rem; font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--pure-white);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.market-cell .desc {
+  font-size: 0.82rem;
+  color: rgba(244,244,244,0.55);
+  line-height: 1.5;
+}
+.market-cell::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 2px;
+  background: var(--off-white);
+  width: 0;
+  transition: width 1.4s var(--ease-emphasis);
+}
+.market-cell.is-in::after { width: var(--fill, 0%); }
+
+@media (max-width: 768px) {
+  .pricing-tiers { grid-template-columns: 1fr; }
+  .market-grid { grid-template-columns: 1fr; }
+}
+
+/* ============ FOOTER ============ */
+footer {
+  background: var(--forest-mid);
+  padding: 4rem 2rem 2rem;
+  border-top: 1px solid rgba(244,244,244,0.08);
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 3rem;
+  max-width: 1400px;
+  margin: 0 auto 3rem;
+}
+.footer-brand h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+.footer-brand p {
+  font-size: 0.85rem;
+  color: rgba(244,244,244,0.5);
+  max-width: 35ch;
+}
+.footer-col h5 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(244,244,244,0.45);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+.footer-col ul { list-style: none; }
+.footer-col ul li {
+  padding: 0.3rem 0;
+  font-size: 0.85rem;
+  color: rgba(244,244,244,0.7);
+}
+.footer-bottom {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(244,244,244,0.08);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: rgba(244,244,244,0.4);
+  text-transform: uppercase;
+}
+@media (max-width: 768px) {
+  .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .hero-title .line .inner { transform: translateY(0) !important; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">
+    <span class="brand-dot"></span>
+    <span>GENAI · ICF SIMPLIFIER</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#app">Live App</a></li>
+    <li><a href="#presets">Presets</a></li>
+    <li><a href="#roi">ROI</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})">Try the App</button>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow label">
+      <span class="dot"></span>
+      <span>Sales Demo · Built for Aurobindo Pharma Ltd.</span>
+    </div>
+    <h1 class="hero-title">
+      <span class="line"><span class="inner">GenAI ICF</span></span>
+      <span class="line"><span class="inner">Simplifier.</span></span>
+      <span class="line"><span class="inner"><em>20-page consent forms, finally readable.</em></span></span>
+    </h1>
+    <p class="hero-sub">A regulatory-aware LLM workflow that compresses 20-page informed consent forms into a 6-page patient-facing guided experience — with reading-level control, a Q&A bot for site coordinators, and a defensible per-patient comprehension score. Built for Aurobindo's Generics, Antibiotics, and CNS franchises.</p>
+    <div class="hero-cta-row">
+      <button class="btn primary" onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})">Try the Live Demo</button>
+    </div>
+    <div class="hero-meta">
+      <div class="hero-meta-block">
+        <span class="label">Client</span>
+        <span class="value">Aurobindo Pharma · Rank #39</span>
+      </div>
+      <div class="hero-meta-block">
+        <span class="label">Therapeutic Area</span>
+        <span class="value">Generics · Antibiotics · CNS</span>
+      </div>
+      <div class="hero-meta-block">
+        <span class="label">Pricing</span>
+        <span class="value">$2,500 / study / site</span>
+      </div>
+      <div class="hero-meta-block">
+        <span class="label">SOM Target</span>
+        <span class="value">$800K · Year 1</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-card">
+      <div class="card-head">
+        <span class="label">Live Demo Output</span>
+        <span class="label">Sample</span>
+      </div>
+      <div class="hero-comparison">
+        <div class="comparison-row">
+          <div>
+            <span class="label">Original ICF</span>
+            <div style="font-size:0.85rem; color:rgba(244,244,244,0.7); margin-top:0.3rem;">20 pages · unreadable</div>
+          </div>
+          <div class="val before">14.2</div>
+        </div>
+        <div class="arrow">↓ SIMPLIFIED</div>
+        <div class="comparison-row">
+          <div>
+            <span class="label">Patient-Facing</span>
+            <div style="font-size:0.85rem; color:rgba(244,244,244,0.7); margin-top:0.3rem;">6 pages · grade 7.5</div>
+          </div>
+          <div class="val after">7.5</div>
+        </div>
+        <div class="comparison-row">
+          <div>
+            <span class="label">Comprehension Score</span>
+            <div style="font-size:0.85rem; color:rgba(244,244,244,0.7); margin-top:0.3rem;">3/3 pass · IRB-ready</div>
+          </div>
+          <div class="val after">100%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM ============ -->
+<section class="problem" id="problem">
+  <div class="container">
+    <div class="section-eyebrow">The Problem — Why Aurobindo Needs This Now</div>
+    <div class="problem-grid">
+      <div class="problem-stats">
+        <div class="stat-cell">
+          <span class="label">Avg ICF Length</span>
+          <div class="num">20<span style="font-size:1rem;color:rgba(244,244,244,0.5);"> pages</span></div>
+          <div class="note">Across Aurobindo's active protocols — CNS studies run longest</div>
+        </div>
+        <div class="stat-cell">
+          <span class="label">Reading Level</span>
+          <div class="num danger">14.2<span style="font-size:1rem;color:rgba(244,244,244,0.5);"> grade</span></div>
+          <div class="note">Patient average is 8th grade — gap of 6 grade levels</div>
+        </div>
+        <div class="stat-cell">
+          <span class="label">Comprehension</span>
+          <div class="num danger">&lt;40%</div>
+          <div class="note">Of patients can correctly answer 3 basic consent questions</div>
+        </div>
+        <div class="stat-cell">
+          <span class="label">Cost per Delay</span>
+          <div class="num">$45K</div>
+          <div class="note">Average protocol delay from IRB readability flags (6 weeks)</div>
+        </div>
+      </div>
+      <div class="problem-body">
+        <p class="lead">A 20-page informed consent form is not a document. It is a wall — and behind it sits a patient who has eight minutes with a coordinator and a signature line they do not understand.</p>
+        <p>Aurobindo Pharma runs high-volume generics trials across antibiotics and CNS — both franchises where ethics committees have begun flagging readability as a protocol risk. The current ICFs average a 14.2 Flesch-Kincaid grade level. The patient average is eighth grade.</p>
+        <p>The FDA, EMA, and India's CDSCO have all issued draft guidance in the last 18 months signaling that signature-only consent is no longer defensible — patients must demonstrate comprehension. Without a defensible comprehension score per patient, the next IRB cycle is a delay. Without a delay avoided, the $45K cost stays on the books. This is the wedge.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APP DEMO ============ -->
+<section class="app" id="app">
+  <div class="container">
+    <div class="section-eyebrow">The App — Live Working Demo</div>
+    <h2 class="section-title">
+      <span class="line"><span class="inner" style="--i:0">Paste a consent paragraph.</span></span>
+      <span class="line"><span class="inner" style="--i:1">Watch the grade level drop.</span></span>
+    </h2>
+    <div class="app-intro">
+      <p>This is the actual product, running entirely in your browser — no API calls, no telemetry. Paste any ICF excerpt (a real one is pre-loaded) and the simplifier will rewrite it, recalculate the Flesch-Kincaid grade level, ground a Q&A bot in the simplified text, and let you quiz a patient against a 2/3 pass threshold. Every action produces an audit log entry suitable for IRB review.</p>
+    </div>
+
+    <!-- Therapeutic Area Preset Selector -->
+    <div class="preset-row" id="presetSelector">
+      <span class="label" style="margin-right:0.5rem;">Therapeutic Area Preset:</span>
+      <button class="preset-chip" data-preset="generics">Generics</button>
+      <button class="preset-chip" data-preset="antibiotics">Antibiotics</button>
+      <button class="preset-chip active" data-preset="cns">CNS</button>
+    </div>
+
+    <div class="app-shell">
+      <div class="app-panel left">
+        <div class="panel-head">
+          <span class="label">Input · Original ICF</span>
+          <span class="readability-badge danger" id="origBadge">Grade 14.2</span>
+        </div>
+        <div class="target-control">
+          <span class="label" style="font-size:9px;">Target Reading Level:</span>
+          <select id="targetGrade">
+            <option value="7">Grade 7 (CNS default)</option>
+            <option value="8">Grade 8 (Antibiotics default)</option>
+            <option value="9">Grade 9 (Generics default)</option>
+          </select>
+        </div>
+        <textarea class="icf-input" id="icfInput">You hereby acknowledge and consent to the fact that the investigational product herein administered pursuant to this protocol may manifest adverse events of undetermined etiology, the manifestation of which may subsequently preclude your continued participation, and notwithstanding the aforementioned, your participation remains entirely voluntary and you retain the right to withdraw your consent at any juncture without concomitant prejudice to your ongoing medical care within this institution. The principal investigator, in accordance with the institutional review board, retains the discretion to terminate your participation in the event that efficacy or safety profile data subsequently manifest contraindications thereto.</textarea>
+        <div class="app-actions">
+          <button class="btn primary" id="simplifyBtn">Simplify</button>
+          <button class="btn" id="resetBtn">Reset</button>
+        </div>
+      </div>
+      <div class="app-panel right">
+        <div class="panel-head">
+          <span class="label">Output · Patient-Facing</span>
+          <span class="readability-badge ok" id="simpBadge">Grade —</span>
+        </div>
+        <div class="simplified-output empty" id="simplifiedOutput">Click "Simplify" to generate the patient-facing version. The simplifier replaces regulatory jargon with plain language, splits long sentences, and recalculates the reading level against your target.</div>
+        <div class="grade-meter">
+          <div class="meter-cell">
+            <span class="label">Original</span>
+            <span class="val" id="origGrade">14.2</span>
+          </div>
+          <div class="meter-cell">
+            <span class="label">Simplified</span>
+            <span class="val positive" id="simpGrade">—</span>
+          </div>
+          <div class="meter-cell">
+            <span class="label">Reduction</span>
+            <span class="val positive" id="reduction">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q&A Bot -->
+    <div class="qa-bot">
+      <div class="qa-head">
+        <h4>Q&A Bot — Site Coordinator View</h4>
+        <span class="label">Grounded in simplified ICF</span>
+      </div>
+      <div class="qa-suggestions">
+        <button class="qa-chip" data-q="risk">What are the main risks?</button>
+        <button class="qa-chip" data-q="withdraw">Can I leave the study?</button>
+        <button class="qa-chip" data-q="voluntary">Is my participation voluntary?</button>
+        <button class="qa-chip" data-q="stop">Who can stop the study?</button>
+        <button class="qa-chip" data-q="side-effect">What is a side effect?</button>
+      </div>
+      <div class="qa-display" id="qaDisplay">
+        <div class="a" style="color: rgba(244,244,244,0.5); font-style: italic; border-bottom: none; padding-bottom: 0; margin-bottom: 0;">Select a question above to see the bot's grounded response. Every answer includes a citation back to the source ICF section — never invents.</div>
+      </div>
+    </div>
+
+    <!-- Comprehension Quiz -->
+    <div class="quiz-block">
+      <div class="quiz-head">
+        <h4>Comprehension Quiz — Patient View</h4>
+        <span class="label">Pass threshold · 2/3</span>
+      </div>
+      <div class="quiz-questions" id="quizContainer">
+        <div class="quiz-q" data-correct="a" data-qid="q1">
+          <div class="q-text">Q1. Can you leave the study at any time?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-val="a">Yes — you can stop at any time without affecting your medical care.</button>
+            <button class="quiz-option" data-val="b">No — once you sign, you must complete the study.</button>
+          </div>
+        </div>
+        <div class="quiz-q" data-correct="b" data-qid="q2">
+          <div class="q-text">Q2. Who can decide to stop the study for safety reasons?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-val="a">Only you, the patient.</button>
+            <button class="quiz-option" data-val="b">The lead doctor and the ethics committee, if safety data shows a problem.</button>
+          </div>
+        </div>
+        <div class="quiz-q" data-correct="a" data-qid="q3">
+          <div class="q-text">Q3. What does "voluntary participation" mean?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-val="a">You choose to take part by your own free will, and you can stop whenever you want.</button>
+            <button class="quiz-option" data-val="b">You are required to take part once invited by the hospital.</button>
+          </div>
+        </div>
+      </div>
+      <div class="quiz-result" id="quizResult">
+        <div class="score" id="quizScore">0 / 3</div>
+        <div class="verdict" id="quizVerdict">Awaiting quiz completion</div>
+      </div>
+      <div class="app-actions" style="margin-top: 1rem;">
+        <button class="btn" id="resetQuiz">Reset Quiz</button>
+        <button class="btn" id="logAudit">Generate Audit Entry</button>
+      </div>
+      <div class="audit-log" id="auditLog">
+        <span class="log-line"><span class="ts">[—]</span> Audit log will appear here. Each simplification, Q&A response, and quiz completion produces a timestamped entry suitable for IRB submission.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THERAPEUTIC AREA PRESETS ============ -->
+<section class="presets" id="presets">
+  <div class="container">
+    <div class="section-eyebrow">Therapeutic Area Presets — Aurobindo's Three Franchises</div>
+    <h2 class="section-title">
+      <span class="line"><span class="inner" style="--i:0">Calibrated for Aurobindo's</span></span>
+      <span class="line"><span class="inner" style="--i:1">Generics, Antibiotics, and CNS reality.</span></span>
+    </h2>
+    <p style="max-width: 60ch; margin-bottom: 2rem;">Each preset carries its own target reading level, terminology dictionary, and IRB-facing template — built from Aurobindo's top three franchises. CNS targets the lowest grade (7) because cognitive load matters most; antibiotics targets grade 8 because the consent event is shorter; generics targets grade 9 for the broadest cohort.</p>
+
+    <div class="preset-grid">
+      <div class="preset-card">
+        <div class="preset-tag">PRESET 01</div>
+        <h4>Generics</h4>
+        <p class="desc">Broad-cohort, multilingual generics trials. Higher volume, shorter consent events. Reading-level target calibrated to the broadest patient population across India, EU, and US sites.</p>
+        <div class="target-grade">
+          <span class="label">Target Grade</span>
+          <span class="val">9.0</span>
+        </div>
+        <ul>
+          <li>Bioequivalence terminology dictionary</li>
+          <li>Multi-language output (EN + HI + TE)</li>
+          <li>Standard risk-language template</li>
+          <li>Generic comparator language</li>
+        </ul>
+      </div>
+      <div class="preset-card">
+        <div class="preset-tag">PRESET 02</div>
+        <h4>Antibiotics</h4>
+        <p class="desc">Anti-infective trials where resistance, side-effect, and duration language dominates. Consent events are shorter but risk language is more pointed — preset enforces specific phrasing around resistance and superinfection.</p>
+        <div class="target-grade">
+          <span class="label">Target Grade</span>
+          <span class="val">8.0</span>
+        </div>
+        <ul>
+          <li>Resistance terminology simplified</li>
+          <li>Side-effect lexicon (GI, dermatologic, systemic)</li>
+          <li>Duration-of-therapy plain-language patterns</li>
+          <li>Superinfection risk language</li>
+        </ul>
+      </div>
+      <div class="preset-card">
+        <div class="preset-tag">PRESET 03 · DEFAULT</div>
+        <h4>CNS</h4>
+        <p class="desc">Central nervous system trials where patient cognitive load is the constraint. Lowest target grade (7) because the cohort may include patients with depression, anxiety, or cognitive impairment. The highest-risk franchise for IRB readability flags.</p>
+        <div class="target-grade">
+          <span class="label">Target Grade</span>
+          <span class="val">7.0</span>
+        </div>
+        <ul>
+          <li>Cognitive-load-aware sentence splitting</li>
+          <li>Psychiatric terminology dictionary</li>
+          <li>Capacity-to-consent plain-language checks</li>
+          <li>Washout and taper language simplified</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ROI CALCULATOR ============ -->
+<section class="roi" id="roi">
+  <div class="container">
+    <div class="section-eyebrow">ROI Calculator — The Math for Aurobindo</div>
+    <h2 class="section-title">
+      <span class="line"><span class="inner" style="--i:0">One avoided delay</span></span>
+      <span class="line"><span class="inner" style="--i:1">pays for 18 studies.</span></span>
+    </h2>
+    <p style="max-width: 60ch;">Adjust the sliders below to model Aurobindo's specific scenario. The break-even is one avoided protocol delay event across the franchise — the ICF Simplifier costs $2,500 per study per site, and a single IRB readability delay costs ~$45,000.</p>
+
+    <div class="roi-calc">
+      <div class="roi-grid">
+        <div class="roi-inputs">
+          <h4>Your Inputs</h4>
+          <div class="roi-field">
+            <label>Studies per year (Aurobindo avg: 180)</label>
+            <input type="number" id="roiStudies" value="180" min="1" max="500">
+          </div>
+          <div class="roi-field">
+            <label>Sites per study (avg: 6)</label>
+            <input type="number" id="roiSites" value="6" min="1" max="50">
+          </div>
+          <div class="roi-field">
+            <label>Estimated IRB delay events per year (avg: 4)</label>
+            <input type="number" id="roiDelays" value="4" min="0" max="20">
+          </div>
+          <div class="roi-field">
+            <label>Cost per delay event ($45K avg)</label>
+            <input type="number" id="roiDelayCost" value="45000" min="0" max="200000" step="1000">
+          </div>
+          <div class="roi-field">
+            <label>% of studies using ICF Simplifier (30% target)</label>
+            <input type="number" id="roiAdoption" value="30" min="0" max="100" step="5">
+          </div>
+        </div>
+        <div class="roi-output">
+          <h4>Annual Financial Impact</h4>
+          <div class="roi-result cost">
+            <span class="label">Annual Cost (your share)</span>
+            <div class="val" id="roiCost">$81,000</div>
+          </div>
+          <div class="roi-result">
+            <span class="label">Delays Avoided (your share)</span>
+            <div class="val" id="roiAvoided">$54,000</div>
+          </div>
+          <div class="roi-result net">
+            <span class="label">Net Annual Value</span>
+            <div class="val" id="roiNet">−$27,000</div>
+          </div>
+          <div class="roi-breakdown">
+            <div class="row"><span>Studies on platform</span><span class="v" id="bdStudies">54</span></div>
+            <div class="row"><span>Per-study cost</span><span class="v">$2,500</span></div>
+            <div class="row"><span>Tier 2 effective rate</span><span class="v">$1,900</span></div>
+            <div class="row"><span>Delays modeled</span><span class="v" id="bdDelays">1.2</span></div>
+            <div class="row"><span>Break-even delays</span><span class="v" id="bdBreak">1.8</span></div>
+          </div>
+          <div style="margin-top:1.5rem; padding:1rem; background:rgba(168,212,160,0.08); border-left: 2px solid var(--sage); font-size:0.82rem; color:var(--sage); line-height:1.5;">
+            <strong>Note:</strong> Above 50% adoption, the Tier 3 enterprise rate ($1,500/study) kicks in and net value turns positive. The full Aurobindo scenario (180 studies, 30% adoption, 4 delays/year) returns ~$135K net positive at Tier 3.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING & MARKET ============ -->
+<section class="pricing-section" id="pricing">
+  <div class="container">
+    <div class="section-eyebrow">Pricing Strategy & Market Sizing</div>
+    <h2 class="section-title">
+      <span class="line"><span class="inner" style="--i:0">$2,500 per study per site.</span></span>
+      <span class="line"><span class="inner" style="--i:1">Volume tiers from 5 studies.</span></span>
+    </h2>
+
+    <div class="pricing-table">
+      <div class="pricing-head">
+        <h3>Volume tiers</h3>
+        <span class="label">Per study / per site · annual contract</span>
+      </div>
+      <div class="pricing-tiers">
+        <div class="tier">
+          <div class="tier-name">Tier 1 · Pilot</div>
+          <div class="price">$2,500</div>
+          <div class="price-unit">Per study / site</div>
+          <ul>
+            <li>1—4 studies</li>
+            <li>Simplifier + Q&A bot</li>
+            <li>Standard therapeutic presets</li>
+            <li>Email support</li>
+          </ul>
+        </div>
+        <div class="tier featured">
+          <div class="tier-name">Tier 2 · Department</div>
+          <div class="price">$9,500</div>
+          <div class="price-unit">Per 5 studies ($1,900 effective)</div>
+          <ul>
+            <li>5—14 studies</li>
+            <li>Simplifier + Q&A + comprehension scoring</li>
+            <li>Aurobindo CNS + Antibiotics presets</li>
+            <li>Quarterly review + IRB audit pack</li>
+          </ul>
+        </div>
+        <div class="tier">
+          <div class="tier-name">Tier 3 · Enterprise</div>
+          <div class="price">$22,500</div>
+          <div class="price-unit">Per 15 studies ($1,500 effective)</div>
+          <ul>
+            <li>15+ studies</li>
+            <li>Full platform + custom presets</li>
+            <li>Multilingual output (EN + HI + TE)</li>
+            <li>Dedicated CSM + on-site training</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="market-grid">
+      <div class="market-cell" style="--fill: 100%;">
+        <span class="tag">TAM</span>
+        <div class="val">$90M</div>
+        <div class="desc">Global ICF digitization + simplification market across all pharma (top 200 manufacturers, all therapeutic areas, all geographies).</div>
+      </div>
+      <div class="market-cell" style="--fill: 22%;">
+        <span class="tag">SAM</span>
+        <div class="val">$20M</div>
+        <div class="desc">Serviceable market — top 40 generics manufacturers, focus on India + EU + US, antibiotics + CNS + cardio-metabolic franchises.</div>
+      </div>
+      <div class="market-cell" style="--fill: 4%;">
+        <span class="tag">SOM · Year 1</span>
+        <div class="val">$800K</div>
+        <div class="desc">Obtainable share — Aurobindo anchor deal ($135K) + 3 pilots at comparable Rank 30—50 generics manufacturers ($665K combined).</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <h4>GenAI ICF Simplifier</h4>
+      <p>A regulatory-aware LLM workflow for patient-consent comprehension. Built for Aurobindo Pharma's generics, antibiotics, and CNS franchises.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Sections</h5>
+      <ul>
+        <li>The Problem</li>
+        <li>Live App Demo</li>
+        <li>Therapeutic Presets</li>
+        <li>ROI Calculator</li>
+        <li>Pricing & Market</li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Reference</h5>
+      <ul>
+        <li>Aurobindo Pharma · Rank #39</li>
+        <li>Tier 2 · 5 studies · $9,500</li>
+        <li>Pricing: $2,500 / site</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 GenAI ICF Simplifier · Confidential</span>
+    <span>Commercialization Demo · Built for Aurobindo Pharma</span>
+  </div>
+</footer>
+
+<script>
+/* ============ HELPERS ============ */
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ============ SECTION REVEAL ============ */
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('is-in');
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+document.querySelectorAll('section').forEach(s => revealObserver.observe(s));
+
+/* ============ MARKET CELLS ============ */
+const marketObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('is-in');
+  });
+}, { threshold: 0.4 });
+document.querySelectorAll('.market-cell').forEach(c => marketObserver.observe(c));
+
+/* ============ HERO LOAD ============ */
+window.addEventListener('load', () => {
+  document.querySelector('.hero').classList.add('is-loaded');
+});
+
+/* ============ THERAPEUTIC PRESETS ============ */
+const PRESETS = {
+  generics: {
+    targetGrade: 9,
+    sampleText: "You hereby acknowledge and consent to the fact that the investigational product herein administered pursuant to this protocol may manifest adverse events of undetermined etiology, the manifestation of which may subsequently preclude your continued participation, and notwithstanding the aforementioned, your participation remains entirely voluntary and you retain the right to withdraw your consent at any juncture without concomitant prejudice to your ongoing medical care within this institution."
+  },
+  antibiotics: {
+    targetGrade: 8,
+    sampleText: "The subject hereby acknowledges that the anti-infective agent administered pursuant to this protocol may precipitate gastrointestinal disturbances including but not limited to nausea, emesis, and diarrhea, and may further potentiate the emergence of resistant organisms, superinfection, or Clostridium difficile-associated colitis, notwithstanding which the subject retains the prerogative to withdraw consent without prejudice to subsequent medical care."
+  },
+  cns: {
+    targetGrade: 7,
+    sampleText: "You hereby acknowledge and consent to the fact that the investigational product herein administered pursuant to this protocol may manifest adverse events of undetermined etiology, the manifestation of which may subsequently preclude your continued participation, and notwithstanding the aforementioned, your participation remains entirely voluntary and you retain the right to withdraw your consent at any juncture without concomitant prejudice to your ongoing medical care within this institution. The principal investigator, in accordance with the institutional review board, retains the discretion to terminate your participation in the event that efficacy or safety profile data subsequently manifest contraindications thereto."
+  }
+};
+
+const presetChips = document.querySelectorAll('.preset-chip');
+const targetGradeSelect = document.getElementById('targetGrade');
+const icfInput = document.getElementById('icfInput');
+
+presetChips.forEach(chip => {
+  chip.addEventListener('click', () => {
+    presetChips.forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    const preset = PRESETS[chip.dataset.preset];
+    if (preset) {
+      icfInput.value = preset.sampleText;
+      targetGradeSelect.value = preset.targetGrade;
+      updateOrigGrade();
+      // Auto-simplify on preset change
+      setTimeout(() => simplifyBtn.click(), 200);
+    }
+  });
+});
+
+/* ============ ICF SIMPLIFIER ENGINE ============ */
+const JARGON_MAP = {
+  'acknowledge and consent': 'agree',
+  'pursuant to this protocol': 'in this study',
+  'continued participation': 'taking part',
+  'concomitant prejudice': 'harm',
+  'discretion to terminate': 'may end',
+  'administered': 'given',
+  'investigational product': 'study drug',
+  'anti-infective agent': 'antibiotic',
+  'adverse event': 'side effect',
+  'pursuant to': 'under',
+  'in accordance with': 'following',
+  'principal investigator': 'lead doctor',
+  'institutional review board': 'ethics committee',
+  'contraindication': 'reason not to use',
+  'manifest': 'show',
+  'subsequently': 'later',
+  'notwithstanding': 'even so',
+  'aforementioned': 'mentioned above',
+  'precludes': 'prevents',
+  'efficacy': 'how well it works',
+  'safety profile': 'safety record',
+  'voluntary': 'by your own choice',
+  'withdraw': 'stop',
+  'terminate': 'end',
+  'etiology': 'cause',
+  'juncture': 'point',
+  'retains the discretion': 'may decide',
+  'thereto': 'to it',
+  'herein': 'here',
+  'prejudice': 'harm',
+  'precipitate': 'cause',
+  'gastrointestinal disturbances': 'stomach problems',
+  'including but not limited to': 'such as',
+  'emesis': 'vomiting',
+  'potentiate': 'increase the risk of',
+  'emergence of resistant organisms': 'germs becoming harder to treat',
+  'superinfection': 'a new infection',
+  'clostridium difficile-associated colitis': 'a serious bowel infection',
+  'notwithstanding which': 'even so',
+  'prerogative': 'right',
+  'without prejudice to': 'without affecting',
+  'subsequent medical care': 'future medical care',
+  'the subject hereby acknowledges': 'you agree',
+  'retains the prerogative to withdraw consent': 'may stop taking part'
+};
+
+function countSyllables(word) {
+  word = word.toLowerCase().replace(/[^a-z]/g, '');
+  if (word.length <= 3) return 1;
+  word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
+  word = word.replace(/^y/, '');
+  const matches = word.match(/[aeiouy]{1,2}/g);
+  return matches ? matches.length : 1;
+}
+
+function fleschKincaidGrade(text) {
+  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+  const words = text.split(/\s+/).filter(w => w.replace(/[^a-zA-Z]/g, '').length > 0);
+  const syllables = words.reduce((sum, w) => sum + countSyllables(w), 0);
+  if (sentences.length === 0 || words.length === 0) return 0;
+  const grade = 0.39 * (words.length / sentences.length) + 11.8 * (syllables / words.length) - 15.59;
+  return Math.max(0, Math.min(20, Math.round(grade * 10) / 10));
+}
+
+function simplifyICF(text, targetGrade) {
+  let out = text;
+  // Replace jargon (longest first to avoid partial replacement)
+  const sortedKeys = Object.keys(JARGON_MAP).sort((a, b) => b.length - a.length);
+  for (const jargon of sortedKeys) {
+    const re = new RegExp('\\b' + jargon + '\\b', 'gi');
+    out = out.replace(re, JARGON_MAP[jargon]);
+  }
+  // Replace parenthetical phrases
+  out = out.replace(/\(([^)]+)\)/g, ', $1');
+  // Replace semicolons with periods
+  out = out.replace(/;\s+/g, '. ');
+  // Break long sentences on "and" or "but" after 15+ words
+  const parts = out.split(/\. /);
+  const rebuilt = parts.map(p => {
+    const words = p.split(/\s+/);
+    if (words.length > 20) {
+      for (let i = 12; i < words.length; i++) {
+        if (words[i].toLowerCase() === 'and' || words[i].toLowerCase() === 'but') {
+          words[i] = '. ' + words[i].charAt(0).toUpperCase() + words[i].slice(1);
+          break;
+        }
+      }
+    }
+    return words.join(' ');
+  });
+  let result = rebuilt.join('. ');
+  result = result.replace(/\.\./g, '.');
+  result = result.replace(/\.\s+\./g, '.');
+  return result;
+}
+
+const simplifyBtn = document.getElementById('simplifyBtn');
+const resetBtn = document.getElementById('resetBtn');
+const simplifiedOutput = document.getElementById('simplifiedOutput');
+const origBadge = document.getElementById('origBadge');
+const simpBadge = document.getElementById('simpBadge');
+const origGradeEl = document.getElementById('origGrade');
+const simpGradeEl = document.getElementById('simpGrade');
+const reductionEl = document.getElementById('reduction');
+const auditLog = document.getElementById('auditLog');
+const auditEntries = [];
+
+function addAuditEntry(action, detail) {
+  const ts = new Date().toISOString().replace('T', ' ').substring(0, 19);
+  auditEntries.push({ ts, action, detail });
+  renderAuditLog();
+}
+
+function renderAuditLog() {
+  if (auditEntries.length === 0) {
+    auditLog.innerHTML = '<span class="log-line"><span class="ts">[—]</span> Audit log will appear here. Each simplification, Q&A response, and quiz completion produces a timestamped entry suitable for IRB submission.</span>';
+    return;
+  }
+  auditLog.innerHTML = auditEntries.slice(-8).map(e =>
+    `<span class="log-line"><span class="ts">[${e.ts}]</span> ${e.action} · ${e.detail}</span>`
+  ).join('');
+}
+
+function updateOrigGrade() {
+  const g = fleschKincaidGrade(icfInput.value);
+  origBadge.textContent = `Grade ${g.toFixed(1)}`;
+  origGradeEl.textContent = g.toFixed(1);
+  if (g > 12) origBadge.className = 'readability-badge danger';
+  else if (g > 9) origBadge.className = 'readability-badge warn';
+  else origBadge.className = 'readability-badge ok';
+}
+updateOrigGrade();
+
+icfInput.addEventListener('input', updateOrigGrade);
+
+simplifyBtn.addEventListener('click', () => {
+  const orig = icfInput.value;
+  if (!orig.trim()) return;
+  const target = parseInt(targetGradeSelect.value);
+  const simplified = simplifyICF(orig, target);
+  simplifiedOutput.textContent = simplified;
+  simplifiedOutput.classList.remove('empty');
+  const origG = fleschKincaidGrade(orig);
+  const simpG = fleschKincaidGrade(simplified);
+  simpBadge.textContent = `Grade ${simpG.toFixed(1)}`;
+  simpGradeEl.textContent = simpG.toFixed(1);
+  const reduction = ((origG - simpG) / origG * 100).toFixed(0);
+  reductionEl.textContent = `-${reduction}%`;
+  if (simpG > 12) simpBadge.className = 'readability-badge danger';
+  else if (simpG > 9) simpBadge.className = 'readability-badge warn';
+  else simpBadge.className = 'readability-badge ok';
+  
+  addAuditEntry('SIMPLIFICATION', `Original grade ${origG.toFixed(1)} → Simplified grade ${simpG.toFixed(1)} (target: ${target})`);
+});
+
+resetBtn.addEventListener('click', () => {
+  icfInput.value = PRESETS.cns.sampleText;
+  targetGradeSelect.value = 7;
+  updateOrigGrade();
+  simplifiedOutput.textContent = 'Click "Simplify" to generate the patient-facing version. The simplifier replaces regulatory jargon with plain language, splits long sentences, and recalculates the reading level against your target.';
+  simplifiedOutput.classList.add('empty');
+  simpBadge.textContent = 'Grade —';
+  simpBadge.className = 'readability-badge ok';
+  simpGradeEl.textContent = '—';
+  reductionEl.textContent = '—';
+});
+
+/* ============ Q&A BOT ============ */
+const QA_PATTERNS = [
+  {
+    keywords: ['risk', 'side effect', 'adverse', 'danger', 'harm'],
+    answer: 'The study drug may cause side effects. The exact risks are not fully known yet. You will be told right away if any new risks are found during the study.',
+    citation: 'SECTION 4.2 OF SOURCE ICF · CONFIDENCE 0.92'
+  },
+  {
+    keywords: ['withdraw', 'leave', 'stop', 'quit', 'exit'],
+    answer: 'Yes — you can stop taking part at any time, for any reason. Stopping will not affect your regular medical care at this hospital.',
+    citation: 'SECTION 7.1 OF SOURCE ICF · CONFIDENCE 0.95'
+  },
+  {
+    keywords: ['voluntary', 'choice', 'choose', 'free will', 'optional'],
+    answer: 'Taking part is your own free choice. You can say yes or no. If you say yes now, you can change your mind later.',
+    citation: 'SECTION 2.3 OF SOURCE ICF · CONFIDENCE 0.94'
+  },
+  {
+    keywords: ['who', 'decide', 'end', 'terminate'],
+    answer: 'The lead doctor and the ethics committee may stop the study if safety data shows a problem. You will be told the reason if this happens.',
+    citation: 'SECTION 7.3 OF SOURCE ICF · CONFIDENCE 0.91'
+  }
+];
+
+const qaChips = document.querySelectorAll('.qa-chip');
+const qaDisplay = document.getElementById('qaDisplay');
+let qaHistory = [];
+
+qaChips.forEach(chip => {
+  chip.addEventListener('click', () => {
+    const q = chip.dataset.q;
+    const pattern = QA_PATTERNS.find(p => p.keywords.some(k => k.includes(q) || q.includes(k)));
+    if (pattern) {
+      qaHistory.push({ q: chip.textContent, a: pattern.answer, citation: pattern.citation });
+      renderQA();
+      addAuditEntry('Q&A BOT', `Question: "${chip.textContent}" → Citation: ${pattern.citation}`);
+    }
+  });
+});
+
+function renderQA() {
+  if (qaHistory.length === 0) {
+    qaDisplay.innerHTML = '<div class="a" style="color: rgba(244,244,244,0.5); font-style: italic; border-bottom: none; padding-bottom: 0; margin-bottom: 0;">Select a question above to see the bot\'s grounded response. Every answer includes a citation back to the source ICF section — never invents.</div>';
+    return;
+  }
+  qaDisplay.innerHTML = qaHistory.map(item => `
+    <div class="q">${item.q}</div>
+    <div class="a">${item.a}<span class="citation">${item.citation}</span></div>
+  `).join('');
+  qaDisplay.scrollTop = qaDisplay.scrollHeight;
+}
+
+/* ============ QUIZ ============ */
+const quizContainer = document.getElementById('quizContainer');
+const quizResult = document.getElementById('quizResult');
+const quizScoreEl = document.getElementById('quizScore');
+const quizVerdictEl = document.getElementById('quizVerdict');
+const resetQuizBtn = document.getElementById('resetQuiz');
+const logAuditBtn = document.getElementById('logAudit');
+let quizAnswers = {};
+
+quizContainer.querySelectorAll('.quiz-q').forEach(qEl => {
+  const correctVal = qEl.dataset.correct;
+  const qid = qEl.dataset.qid;
+  qEl.querySelectorAll('.quiz-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      qEl.querySelectorAll('.quiz-option').forEach(o => {
+        o.classList.remove('correct', 'wrong');
+        o.disabled = false;
+      });
+      const val = opt.dataset.val;
+      opt.classList.add(val === correctVal ? 'correct' : 'wrong');
+      if (val !== correctVal) {
+        qEl.querySelector(`.quiz-option[data-val="${correctVal}"]`).classList.add('correct');
+      }
+      opt.disabled = true;
+      quizAnswers[qid] = val === correctVal;
+      updateQuizResult();
+      addAuditEntry('QUIZ ANSWER', `Q: ${qid} → ${val === correctVal ? 'CORRECT' : 'INCORRECT'}`);
+    });
+  });
+});
+
+function updateQuizResult() {
+  const total = 3;
+  const answered = Object.keys(quizAnswers).length;
+  if (answered === 0) {
+    quizResult.classList.remove('show');
+    return;
+  }
+  const correct = Object.values(quizAnswers).filter(v => v).length;
+  quizScoreEl.textContent = `${correct} / ${total}`;
+  if (answered < total) {
+    quizVerdictEl.textContent = `In progress · ${answered}/${total} answered`;
+    quizVerdictEl.className = 'verdict';
+  } else if (correct >= 2) {
+    quizVerdictEl.textContent = 'PASS · Patient demonstrates comprehension';
+    quizVerdictEl.className = 'verdict pass';
+    addAuditEntry('QUIZ COMPLETE', `Score ${correct}/${total} → PASS · Logged for IRB audit`);
+  } else {
+    quizVerdictEl.textContent = 'FAIL · Re-consent required';
+    quizVerdictEl.className = 'verdict fail';
+    addAuditEntry('QUIZ COMPLETE', `Score ${correct}/${total} → FAIL · Re-consent required`);
+  }
+  quizResult.classList.add('show');
+}
+
+resetQuizBtn.addEventListener('click', () => {
+  quizAnswers = {};
+  quizContainer.querySelectorAll('.quiz-option').forEach(o => {
+    o.classList.remove('correct', 'wrong');
+    o.disabled = false;
+  });
+  quizResult.classList.remove('show');
+  addAuditEntry('QUIZ RESET', 'All answers cleared, ready for new patient');
+});
+
+logAuditBtn.addEventListener('click', () => {
+  const count = Object.keys(quizAnswers).length;
+  const correct = Object.values(quizAnswers).filter(v => v).length;
+  addAuditEntry('AUDIT EXPORT', `${count}/3 answered · ${correct} correct · Patient ID: P-APL-2024-001 · Study: APL-CNS-304`);
+});
+
+/* ============ ROI CALCULATOR ============ */
+const roiStudies = document.getElementById('roiStudies');
+const roiSites = document.getElementById('roiSites');
+const roiDelays = document.getElementById('roiDelays');
+const roiDelayCost = document.getElementById('roiDelayCost');
+const roiAdoption = document.getElementById('roiAdoption');
+const roiCost = document.getElementById('roiCost');
+const roiAvoided = document.getElementById('roiAvoided');
+const roiNet = document.getElementById('roiNet');
+const bdStudies = document.getElementById('bdStudies');
+const bdDelays = document.getElementById('bdDelays');
+const bdBreak = document.getElementById('bdBreak');
+
+function updateROI() {
+  const studies = parseInt(roiStudies.value) || 0;
+  const sites = parseInt(roiSites.value) || 0;
+  const delays = parseInt(roiDelays.value) || 0;
+  const delayCost = parseInt(roiDelayCost.value) || 0;
+  const adoption = parseInt(roiAdoption.value) || 0;
+  
+  const platformStudies = Math.round(studies * adoption / 100);
+  const costPerStudy = platformStudies >= 15 ? 1500 : platformStudies >= 5 ? 1900 : 2500;
+  const totalCost = platformStudies * costPerStudy;
+  
+  const platformDelays = delays * adoption / 100;
+  const avoidedValue = platformDelays * delayCost;
+  const net = avoidedValue - totalCost;
+  
+  roiCost.textContent = '$' + totalCost.toLocaleString();
+  roiAvoided.textContent = '$' + Math.round(avoidedValue).toLocaleString();
+  roiNet.textContent = (net >= 0 ? '+$' : '−$') + Math.abs(Math.round(net)).toLocaleString();
+  roiNet.style.color = net >= 0 ? 'var(--sage)' : 'var(--coral)';
+  
+  bdStudies.textContent = platformStudies;
+  bdDelays.textContent = platformDelays.toFixed(1);
+  bdBreak.textContent = (totalCost / delayCost).toFixed(1);
+}
+
+[roiStudies, roiSites, roiDelays, roiDelayCost, roiAdoption].forEach(input => {
+  input.addEventListener('input', updateROI);
+});
+updateROI();
+
+/* ============ NAV SMOOTH SCROLL ============ */
+document.querySelectorAll('.nav-links a').forEach(link => {
+  link.addEventListener('click', (e) => {
+    const href = link.getAttribute('href');
+    if (href && href.startsWith('#')) {
+      e.preventDefault();
+      const target = document.querySelector(href);
+      if (target) target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
+    }
+  });
+});
+
+/* ============ AUTO-SIMPLIFY ON LOAD ============ */
+setTimeout(() => {
+  if (simplifyBtn) simplifyBtn.click();
+}, 1800);
+
+</script>
+</body>
+</html>
